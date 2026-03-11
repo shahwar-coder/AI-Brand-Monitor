@@ -7,7 +7,8 @@ Bar Chart (topic)
 AI insights (brand summary)
 '''
 import sqlite3
-from backend.config import DatabaseConfig
+from langchain_ollama import ChatOllama
+from backend.config import DatabaseConfig, LLMConfig
 
 # For Table display in UI
 def get_mentions_table(brand):
@@ -173,3 +174,84 @@ def get_topic_distribution(brand):
         # }
 
         return topic_distribution
+
+
+def generate_brand_summary(brand):
+    """
+    Generate AI summary of brand discussions.
+
+    Workflow
+    --------
+    1. Open database connection
+    2. Retrieve analyzed mentions for the brand
+    3. Combine mention texts for context
+    4. Send context to LLM for summarization
+    5. Return generated summary
+    """
+
+    # build connection
+    with sqlite3.connect(database=DatabaseConfig.DB_PATH) as conn:
+
+        # build cursor
+        cursor = conn.cursor()
+
+        # build command
+        command = """
+        SELECT title, text, sentiment, topic
+        FROM mentions
+        WHERE brand = ?
+        AND sentiment IS NOT NULL
+        ORDER BY timestamp DESC
+        LIMIT 20
+        """
+
+        # execute command
+        cursor.execute(command, (brand,))
+
+        # fetch rows
+        rows = cursor.fetchall()
+
+    # build text context
+    context = ""
+
+    for title, text, sentiment, topic in rows:
+
+        title = title or ""
+        text = text or ""
+
+        context += f"""
+        Title: {title}
+        Text: {text}
+        Sentiment: {sentiment}
+        Topic: {topic}
+        """
+
+    # initialize model
+    model = ChatOllama(model=LLMConfig.LLM_MODEL)
+
+    prompt = f"""
+    You are a brand monitoring analyst.
+
+    Analyze the following discussions about the brand "{brand}"
+    and generate a concise summary of the overall sentiment
+    and key topics being discussed.
+
+    Rules:
+    - Write 2-3 sentences only
+    - Focus on major trends
+    - Do not list individual posts
+
+    Discussions:
+    {context}
+    """
+
+    try:
+        response = model.invoke(prompt)
+
+        summary = response.content.strip()
+
+        return summary
+
+    except Exception as e:
+        print(f"Summary generation error: {e}")
+        return "Summary could not be generated."
