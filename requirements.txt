@@ -1,0 +1,19 @@
+# python -m pip install -r requirements.txt
+
+# LLM
+langchain_ollama
+
+# env
+python_dotenv
+
+# data
+pandas
+
+# UI
+streamlit
+
+# charts
+plotly
+
+# API
+requests

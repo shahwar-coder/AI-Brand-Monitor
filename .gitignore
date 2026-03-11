@@ -1,0 +1,18 @@
+# env
+.env
+
+# virtual environment
+.ai-brand-monitor/
+
+# python
+__pycache__/
+*.pyc
+
+# database
+data/*.db
+
+# vscode
+.vscode/
+
+# mac
+.DS_Store
