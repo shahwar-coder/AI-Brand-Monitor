@@ -9,8 +9,12 @@ AI insights (brand summary)
 import sqlite3
 from langchain_ollama import ChatOllama
 from backend.config import DatabaseConfig, LLMConfig
+import streamlit as st # for caching eg. charts data etc, 
+# so ui does not reload on every streamlit auto rerun, when inputs are same
+
 
 # For Table display in UI
+@st.cache_data
 def get_mentions_table(brand):
     """
     Retrieve analyzed mentions for a given brand.
@@ -57,6 +61,18 @@ def get_mentions_table(brand):
 
         return mentions
     
+
+# eg.
+# get_sentiment_distribution("OpenAI")
+# - query database
+# - cache result
+
+# next time.
+# get_sentiment_distribution("OpenAI")
+# - return cached result instantly
+# (no DB query)
+
+@st.cache_data
 def get_sentiment_distribution(brand):
     """
     Retrieve sentiment counts for a given brand.
@@ -116,6 +132,7 @@ def get_sentiment_distribution(brand):
         return sentiment_distribution
     
 
+@st.cache_data
 def get_topic_distribution(brand):
     """
     Retrieve topic counts for a given brand.
@@ -176,6 +193,7 @@ def get_topic_distribution(brand):
         return topic_distribution
 
 
+@st.cache_data
 def generate_brand_summary(brand):
     """
     Generate AI summary of brand discussions.

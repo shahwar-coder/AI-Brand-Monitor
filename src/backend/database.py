@@ -118,6 +118,9 @@ def get_unanalyzed_mentions_by_brand(brand):
     # build connection
     with sqlite3.connect(database=DatabaseConfig.DB_PATH) as conn:
 
+        # Makes rows accessible by column name, e.g. mention["id"]
+        conn.row_factory = sqlite3.Row
+
         # build cursor
         cursor = conn.cursor()
 
@@ -126,29 +129,18 @@ def get_unanalyzed_mentions_by_brand(brand):
         SELECT *
         FROM mentions
         WHERE brand = ?
-        AND sentiment IS NULL 
+        AND sentiment IS NULL
         ORDER BY timestamp DESC
         """
-        # NOTE : `AND sentiment IS NULL` -> helps us filter the row, where AI analysis has not happened.
 
         # execute the command
-        cursor.execute(
-            command, 
-            (brand,)
-            )
+        cursor.execute(command, (brand,))
 
-        # conn.commit() # won't be required as we are just reading the data
-
-        # fetch results
-        results = cursor.fetchall()
+        # fetch results and convert to plain dicts so they survive outside `with`
+        results = [dict(row) for row in cursor.fetchall()]
 
         return results
     
-        # [
-        #     (col1, col2, col3, ...),
-        #     (col1, col2, col3, ...),
-        #     ...
-        # ]
 
 def update_mention_analysis(mention_id, sentiment, topic):
     """
