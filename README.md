@@ -19,17 +19,25 @@ A local, privacy-first brand monitoring dashboard that pulls mentions from **Hac
 ## Project Structure
 
 ```
-project/
-├── app.py                  # Streamlit UI entry point
-├── backend/
-│   ├── config.py           # Environment-based configuration
-│   ├── database.py         # SQLite CRUD operations
-│   ├── data_sources.py     # Hacker News API fetching
-│   ├── ai_analysis.py      # Sentiment & topic classification
-│   └── reporting.py        # Aggregations & AI summary for UI
+ai-brand-monitor/
 ├── data/
-│   └── brand_monitor.db    # SQLite database (auto-created)
-├── .env                    # Your environment variables (see below)
+│   └── brand_monitor.db        # SQLite database (auto-created on first run)
+├── src/
+│   ├── backend/
+│   │   ├── __init__.py
+│   │   ├── ai_analysis.py      # Sentiment & topic classification via LLM
+│   │   ├── config.py           # Environment-based configuration
+│   │   ├── data_sources.py     # Hacker News API fetching
+│   │   ├── database.py         # SQLite CRUD operations
+│   │   └── reporting.py        # Aggregations & AI summary for UI
+│   ├── frontend/
+│   │   ├── __init__.py
+│   │   └── app.py              # Streamlit UI entry point
+│   └── __init__.py
+├── tests/
+├── .env                        # Your environment variables (see below)
+├── .gitignore
+├── README.md
 └── requirements.txt
 ```
 
@@ -85,7 +93,7 @@ All three keys have sensible defaults, so `.env` is optional unless you want to 
 **5. Run the app**
 
 ```bash
-streamlit run app.py
+streamlit run src/frontend/app.py
 ```
 
 ---
